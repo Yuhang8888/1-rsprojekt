@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Remove Dishes</title>
+</head>
+<body>
+    <h1>Remove Dishes</h1>
+    {% if message %}
+    <p style="color: green;">{{ message }}</p>
+    {% endif %}
+    
+    <form action="/remove" method="POST">
+        <label for="quantity">Quantity to Deduct:</label>
+        <input type="number" name="quantity" min="1" required><br><br>
+        
+        <label for="dishes">Select Dishes:</label><br>
+        {% for dish in dishes %}
+        <input type="checkbox" name="dishes" value="{{ dish[0] }}"> {{ dish[1] }}<br>
+        {% endfor %}
+        
+        <br>
+        <button type="submit">Deduct</button>
+    </form>
+
+    <p><a href="{{ url_for('inventory') }}">Go to Inventory</a> | <a href="{{ url_for('remove') }}">Go to Remove</a></p>
+</body>
+</html>
