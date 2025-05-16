@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <title>Employee Schedule Input & View</title>
+    <style>
+        body { font-family: Arial, sans-serif; padding: 20px; }
+        table { border-collapse: collapse; width: 100%; margin-top: 20px; }
+        th, td { border: 1px solid #ddd; padding: 8px; text-align: center; vertical-align: top; }
+        th { background-color: #f2f2f2; }
+        select { width: 120px; padding: 4px; }
+        .job-title { font-style: italic; font-size: 0.9em; color: #666; }
+        .shift { margin-bottom: 4px; }
+    </style>
+</head>
+<body>
+
+<h2>Add Shifts (up to 5 at a time)</h2>
+
+<form method="POST">
+    <table>
+        <thead>
+            <tr>
+                <th>Employee</th>
+                <th>Day</th>
+                <th>Start Time</th>
+                <th>Duration (hours)</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for i in range(5) %}
+            <tr>
+                <td>
+                    <select name="employee_{{ i }}">
+                        <option value="">Select Employee</option>
+                        {% for emp_id, emp_name, job_title in employees %}
+                            <option value="{{ emp_id }}">{{ emp_name }} ({{ job_title }})</option>
+                        {% endfor %}
+                    </select>
+                </td>
+                <td>
+                    <select name="day_{{ i }}">
+                        <option value="">Select Day</option>
+                        {% for day in days %}
+                            <option value="{{ day }}">{{ day }}</option>
+                        {% endfor %}
+                    </select>
+                </td>
+                <td>
+                    <select name="start_{{ i }}">
+                        <option value="">Select Time</option>
+                        {% for time in times %}
+                            <option value="{{ time }}">{{ time }}</option>
+                        {% endfor %}
+                    </select>
+                </td>
+                <td>
+                    <select name="duration_{{ i }}">
+                        <option value="">Select Duration</option>
+                        {% for dur in durations %}
+                            <option value="{{ dur }}">{{ dur }}</option>
+                        {% endfor %}
+                    </select>
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+    <br/>
+    <button type="submit">Add Shifts</button>
+</form>
+
+<h2>Schedule Overview</h2>
+<table>
+    <thead>
+        <tr>
+            <th>Employee</th>
+            <th>Job Title</th>
+            {% for day in days %}
+            <th>{{ day }}</th>
+            {% endfor %}
+        </tr>
+    </thead>
+    <tbody>
+        {% for emp_id, emp_name, job_title in employees %}
+        <tr>
+            <td>{{ emp_name }}</td>
+            <td class="job-title">{{ job_title }}</td>
+            {% for day in days %}
+            <td>
+                {% set shifts = schedule_dict.get((emp_id, day), []) %}
+                {% if shifts %}
+                    {% for shift in shifts %}
+                        <div class="shift">
+                            {{ shift.start_time }} - 
+                            {% set start_h = shift.start_time[:2]|int %}
+                            {% set start_m = shift.start_time[3:5]|int %}
+                            {% set dur_min = (shift.duration|float * 60)|int %}
+                            {% set end_total = start_h*60 + start_m + dur_min %}
+                            {% set end_h = (end_total // 60) % 24 %}
+                            {% set end_m = end_total % 60 %}
+                            {{ '%02d:%02d' % (end_h, end_m) }}
+                        </div>
+                    {% endfor %}
+                {% else %}
+                    -
+                {% endif %}
+            </td>
+            {% endfor %}
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+
+</body>
+</html>
